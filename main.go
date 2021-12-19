@@ -13,7 +13,7 @@ type User struct {
 	Framework  string
 }
 
-func getUsers() {
+func getUsers() [1000]User {
 	var users [1000]User
 
 	for i := 1; i < 1001; i++ {
@@ -26,13 +26,15 @@ func getUsers() {
 			Framework:  "Go fiber",
 		}
 	}
+
+	return users
 }
 
 func main() {
 	app := fiber.New()
 
 	app.Get("/api/v1/users", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World 👋!")
+		return c.JSON(getUsers())
 	})
 
 	app.Listen(":3000")
