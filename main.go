@@ -23,7 +23,7 @@ func getUsers() [1000]User {
 			Age:        25,
 			First_Name: "First_name" + stringIndex,
 			Last_Name:  "Last_Name" + stringIndex,
-			Framework:  "Go fiber",
+			Framework:  "Golang (fiber)  ",
 		}
 	}
 
