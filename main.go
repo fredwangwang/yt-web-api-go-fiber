@@ -1,8 +1,14 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"context"
+	"fmt"
+	"runtime"
 	"strconv"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"golang.org/x/sync/semaphore"
 )
 
 type User struct {
@@ -13,12 +19,13 @@ type User struct {
 	Framework  string
 }
 
-func getUsers() [1000]User {
+// func getUsers() [1000]User {
+func getUsers() []User {
 	var users [1000]User
 
-	for i := 1; i < 1001; i++ {
+	for i := 0; i < 1000; i++ {
 		var stringIndex = strconv.Itoa(i)
-		users[i-1] = User{
+		users[i] = User{
 			Id:         i,
 			Age:        25,
 			First_Name: "First_name" + stringIndex,
@@ -27,13 +34,26 @@ func getUsers() [1000]User {
 		}
 	}
 
-	return users
+	// return users
+	return users[:] // https://go.dev/ref/spec#Slice_expressions
 }
 
 func main() {
 	app := fiber.New()
 
+	go func() {
+		for {
+			fmt.Println("num go routine", runtime.NumGoroutine())
+			time.Sleep(time.Second)
+		}
+	}()
+
+	ctx := context.TODO()
+	sem := semaphore.NewWeighted(int64(runtime.GOMAXPROCS(0)))
+
 	app.Get("/api/v1/users", func(c *fiber.Ctx) error {
+		sem.Acquire(ctx, 1)
+		defer sem.Release(1)
 		return c.JSON(getUsers())
 	})
 
